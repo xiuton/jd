@@ -3,7 +3,7 @@ name: Build and Deploy Dioxus App
 on:
   push:
     branches:
-      - master  # 或 main，根据你的主分支名
+      - main  # 或 main，根据你的主分支名
 
 jobs:
   build-and-deploy:
