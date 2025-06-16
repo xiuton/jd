@@ -1,0 +1,7 @@
+[build]
+target = "index.html"
+release = false
+
+[serve]
+port = 8080
+open = true 
