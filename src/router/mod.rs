@@ -1,11 +1,11 @@
 use dioxus::prelude::*;
 use dioxus_router::prelude::Routable;
-use crate::components::layout::Layout;
+// use crate::components::layout::Layout;
 use crate::pages::{Home, Orders, Wallet, Profile, NotFound};
 
 #[derive(Routable, Clone)]
 pub enum Route {
-    #[layout(Layout)]
+    // #[layout(Layout)]
     #[route("/")]
     Home {},
     #[route("/orders")]

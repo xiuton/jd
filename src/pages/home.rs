@@ -3,59 +3,21 @@ use dioxus::prelude::*;
 #[component]
 pub fn Home() -> Element {
     let mut show_sidebar = use_signal(|| false);
+    let mut active_tab = use_signal(|| 0);
 
     rsx! {
         div { class: "min-h-screen bg-gray-100 flex flex-col pb-20",
             // 顶部栏
-            div { class: "bg-white shadow px-4 py-3 flex items-center justify-between sticky top-0 z-20",
-                button {
-                    class: "text-2xl text-gray-700 mr-2",
-                    onclick: move |_| show_sidebar.set(true),
-                    "≡"
-                }
-                span { class: "font-bold text-lg text-gray-800", "众包配送" }
-                button { class: "text-xl text-gray-400", "路线" }
-            }
+            HeaderBar { on_menu_click: move |_| show_sidebar.set(true) }
             // 订单Tab
-            div { class: "flex bg-white border-b sticky top-[56px] z-10",
-                div { class: "flex-1 text-center py-2 border-b-2 border-orange-500 text-orange-500 font-bold", "新任务" }
-                div { class: "flex-1 text-center py-2 text-gray-500", "待取货" }
-                div { class: "flex-1 text-center py-2 text-gray-500", "配送中" }
+            OrderTabs { 
+                active: *active_tab.read(),
+                on_change: move |index| active_tab.set(index)
             }
-            // 订单卡片列表
-            div { class: "px-2 mt-2 space-y-3 flex-1 overflow-y-auto pb-32",
-                OrderCard {
-                    time_left: "35分钟内(16:54前)送达",
-                    price: "3.75",
-                    shop: "拾阶面包 | 世纪公园店",
-                    shop_addr: "管城回族区美景天城(石化路南)",
-                    distance: "2.2km",
-                    user_addr: "未来路康桥知园西院3号楼一单元20**",
-                    user_distance: "1.4km",
-                    tag: "1个冲单奖",
-                    goods: "食品小吃 · 1公斤",
-                    note: None,
-                }
-                OrderCard {
-                    time_left: "26分钟内(16:46前)送达",
-                    price: "4.1",
-                    shop: "蜜雪冰城（紫南花园店）",
-                    shop_addr: "郑州市管城回族区紫东路紫南花园一期商铺(紫东路57-13号)",
-                    distance: "2.9km",
-                    user_addr: "河南郑州市管城回族区紫荆山南路街道郑州市紫东路121-1号，紫祥烟酒店商行",
-                    user_distance: "594m",
-                    tag: "1个冲单奖 必达单 畅跑单",
-                    goods: "饮料 · 0.5公斤 · 1件",
-                    note: Some("门店订单:#84 [JD321680755174] 缺货时电话与我沟通"),
-                }
-            }
+            // 订单列表
+            OrderList { active_tab: *active_tab.read() }
             // 底部导航栏
-            div { class: "fixed bottom-0 left-0 right-0 bg-white flex items-center justify-around px-4 py-2 border-t shadow z-20",
-                div { class: "flex flex-col items-center text-orange-500", span { class: "text-xl", "📋" } span { class: "text-xs mt-1", "接单" } }
-                div { class: "flex flex-col items-center text-gray-400", span { class: "text-xl", "💰" } span { class: "text-xs mt-1", "钱包" } }
-                div { class: "flex flex-col items-center text-gray-400", span { class: "text-xl", "👤" } span { class: "text-xs mt-1", "我的" } }
-                button { class: "bg-orange-500 text-white px-8 py-2 rounded-full font-bold -mt-8 shadow-lg text-lg", "开工" }
-            }
+            BottomBar {}
             // 侧边栏抽屉
             if *show_sidebar.read() {
                 SidebarDrawer { on_close: move |_| show_sidebar.set(false) }
@@ -67,53 +29,217 @@ pub fn Home() -> Element {
 #[component]
 fn HeaderBar(on_menu_click: EventHandler<()>) -> Element {
     rsx! {
-        div { class: "flex items-center justify-between px-4 py-2 bg-white shadow",
-            button { class: "", onclick: move |_| on_menu_click.call(()), "≡" }
-            span { class: "font-bold text-lg", "已收工" }
-            button { class: "", "路线" }
+        div { class: "bg-black px-4 py-3 flex items-center justify-between sticky top-0 z-20",
+            div {
+                class: "flex items-center",
+                button {
+                    class: "w-7 h-7 border border-slate-600 bg-black bg-opacity-50 text-white rounded-full flex items-center justify-center text-xl",
+                    onclick: move |_| on_menu_click.call(()),
+                    svg {
+                        class: "w-5 h-5",
+                        view_box: "0 0 24 24",
+                        fill: "none",
+                        stroke: "currentColor",
+                        stroke_width: "2",
+                        stroke_linecap: "round",
+                        stroke_linejoin: "round",
+                        path { d: "M4 6h16" }
+                        path { d: "M4 12h16" }
+                        path { d: "M4 18h16" }
+                    }
+                }
+                div {
+                    class: "flex items-center ml-2 border border-slate-600 rounded-full px-[5px] py-[3px] bg-black bg-opacity-50",
+                    // 红色圆点图标带白色横杠
+                    svg {
+                        class: "w-5 h-5 mr-1",
+                        view_box: "0 0 24 24",
+                        circle { 
+                            cx: "12",
+                            cy: "12",
+                            r: "10",
+                            fill: "rgb(234, 67, 53)"
+                        }
+                        path { 
+                            d: "M8 12h8",
+                            stroke: "white",
+                            stroke_width: "2",
+                            stroke_linecap: "round"
+                        }
+                    }
+                    span { 
+                        class: "text-[15px] leading-none text-white", 
+                        "已收工" 
+                    }
+                    // 倒三角图标
+                    svg {
+                        class: "w-4 h-4 ml-1",
+                        view_box: "0 0 24 24",
+                        path { 
+                            d: "M12 16L6 10H18L12 16Z",
+                            fill: "white"
+                        }
+                    }
+                }
+            }
+            div {
+                class: "flex items-center space-x-4",
+                button {
+                    class: "flex items-center text-gray-400",
+                    // 地图路线图标
+                    svg {
+                        class: "w-5 h-5",
+                        view_box: "0 0 24 24",
+                        fill: "none",
+                        stroke: "currentColor",
+                        stroke_width: "2",
+                        stroke_linecap: "round",
+                        stroke_linejoin: "round",
+                        path { d: "M3 7l6 6 4-4 8 8" }
+                        path { d: "M14 3l7 0 0 7" }
+                    }
+                    span { class: "ml-1", "路线" }
+                }
+                button {
+                    class: "flex items-center text-gray-400",
+                    // 铃铛图标
+                    svg {
+                        class: "w-5 h-5",
+                        view_box: "0 0 24 24",
+                        fill: "none",
+                        stroke: "currentColor",
+                        stroke_width: "2",
+                        stroke_linecap: "round",
+                        stroke_linejoin: "round",
+                        path { d: "M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" }
+                        path { d: "M13.73 21a2 2 0 0 1-3.46 0" }
+                    }
+                }
+            }
         }
     }
 }
 
 #[component]
-fn OrderTabs() -> Element {
+fn OrderTabs(active: i32, on_change: EventHandler<i32>) -> Element {
+    let tabs = vec![
+        ("新任务", "border-orange-500 text-orange-500", "text-gray-500"),
+        ("待取货", "border-orange-500 text-orange-500", "text-gray-500"),
+        ("配送中", "border-orange-500 text-orange-500", "text-gray-500"),
+    ];
+
     rsx! {
-        div { class: "flex bg-white border-b",
-            div { class: "flex-1 text-center py-2 border-b-2 border-orange-500 text-orange-500 font-bold", "新任务" }
-            div { class: "flex-1 text-center py-2 text-gray-500", "待取货" }
-            div { class: "flex-1 text-center py-2 text-gray-500", "配送中" }
+        div { class: "flex bg-black border-b sticky top-[52px] z-10",
+            {tabs.into_iter().enumerate().map(|(index, (text, active_class, inactive_class))| {
+                let is_active = active == index as i32;
+                let class_name = if is_active {
+                    format!("flex-1 text-center py-2 cursor-pointer border-b-2 font-bold {}", active_class)
+                } else {
+                    format!("flex-1 text-center py-2 cursor-pointer {}", inactive_class)
+                };
+                rsx! {
+                    div {
+                        class: class_name,
+                        onclick: move |_| on_change.call(index as i32),
+                        "{text}"
+                    }
+                }
+            })}
         }
     }
 }
 
 #[component]
-fn OrderList() -> Element {
+fn OrderList(active_tab: i32) -> Element {
+    // 根据不同的 tab 显示不同的订单数据
+    let orders = match active_tab {
+        0 => vec![ // 新任务
+            (
+                "35分钟内(16:54前)送达",
+                "3.75",
+                "拾阶面包 | 世纪公园店",
+                "管城回族区美景天城(石化路南)",
+                "2.2km",
+                "未来路康桥知园西院3号楼一单元20**",
+                "1.4km",
+                "1个冲单奖",
+                "食品小吃 · 1公斤",
+                None,
+            ),
+            (
+                "26分钟内(16:46前)送达",
+                "4.1",
+                "蜜雪冰城（紫南花园店）",
+                "郑州市管城回族区紫东路紫南花园一期商铺(紫东路57-13号)",
+                "2.9km",
+                "河南郑州市管城回族区紫荆山南路街道郑州市紫东路121-1号，紫祥烟酒店商行",
+                "594m",
+                "1个冲单奖 必达单 畅跑单",
+                "饮料 · 0.5公斤 · 1件",
+                Some("门店订单:#84 [JD321680755174] 缺货时电话与我沟通"),
+            ),
+        ],
+        1 => vec![ // 待取货
+            (
+                "15分钟内取货",
+                "5.0",
+                "肯德基 | 商都路店",
+                "金水区商都路与花园路交叉口",
+                "1.5km",
+                "金水区国基路24号院",
+                "800m",
+                "必达单",
+                "快餐 · 2件",
+                None,
+            ),
+        ],
+        2 => vec![ // 配送中
+            (
+                "10分钟内送达",
+                "6.5",
+                "麦当劳 | 文化路店",
+                "金水区文化路与农业路交叉口",
+                "0.5km",
+                "文化路89号",
+                "300m",
+                "超时预警",
+                "快餐 · 3件",
+                Some("顾客等急了，请尽快送达"),
+            ),
+        ],
+        _ => vec![],
+    };
+
     rsx! {
-        div { class: "p-2 space-y-4 overflow-y-auto pb-24",
-            OrderCard {
-                time_left: "35分钟内(16:54前)送达",
-                price: "3.75",
-                shop: "拾阶面包 | 世纪公园店",
-                shop_addr: "管城回族区美景天城(石化路南)",
-                distance: "2.2km",
-                user_addr: "未来路康桥知园西院3号楼一单元20**",
-                user_distance: "1.4km",
-                tag: "1个冲单奖",
-                goods: "食品小吃 · 1公斤",
-                note: None,
-            }
-            OrderCard {
-                time_left: "26分钟内(16:46前)送达",
-                price: "4.1",
-                shop: "蜜雪冰城（紫南花园店）",
-                shop_addr: "郑州市管城回族区紫东路紫南花园一期商铺(紫东路57-13号)",
-                distance: "2.9km",
-                user_addr: "河南郑州市管城回族区紫荆山南路街道郑州市紫东路121-1号，紫祥烟酒店商行",
-                user_distance: "594m",
-                tag: "1个冲单奖 必达单 畅跑单",
-                goods: "饮料 · 0.5公斤 · 1件",
-                note: Some("门店订单:#84 [JD321680755174] 缺货时电话与我沟通"),
-            }
+        div { class: "px-2 mt-2 space-y-3 flex-1 overflow-y-auto",
+            {orders.into_iter().map(|(time_left, price, shop, shop_addr, distance, user_addr, user_distance, tag, goods, note)| {
+                rsx! {
+                    OrderCard {
+                        time_left: time_left,
+                        price: price,
+                        shop: shop,
+                        shop_addr: shop_addr,
+                        distance: distance,
+                        user_addr: user_addr,
+                        user_distance: user_distance,
+                        tag: tag,
+                        goods: goods,
+                        note: note,
+                    }
+                }
+            })}
+        }
+    }
+}
+
+#[component]
+fn BottomBar() -> Element {
+    rsx! {
+        div { class: "fixed bottom-0 left-0 right-0 bg-white flex items-center justify-around px-4 py-2 border-t shadow z-20",
+            div { class: "flex flex-col items-center text-orange-500", span { class: "text-xl", "📋" } span { class: "text-xs mt-1", "接单" } }
+            div { class: "flex flex-col items-center text-gray-400", span { class: "text-xl", "💰" } span { class: "text-xs mt-1", "钱包" } }
+            div { class: "flex flex-col items-center text-gray-400", span { class: "text-xl", "👤" } span { class: "text-xs mt-1", "我的" } }
+            button { class: "bg-orange-500 text-white px-8 py-2 rounded-full font-bold -mt-8 shadow-lg text-lg", "开工" }
         }
     }
 }
@@ -154,16 +280,6 @@ fn OrderCard(
                 div { class: "bg-yellow-100 text-yellow-800 p-1 rounded text-xs mt-1", "{n}" }
             }
             button { class: "w-full mt-2 bg-orange-400 text-white py-2 rounded font-bold", "接单" }
-        }
-    }
-}
-
-#[component]
-fn BottomBar() -> Element {
-    rsx! {
-        div { class: "fixed bottom-0 left-0 right-0 bg-white flex items-center justify-between px-4 py-2 border-t shadow z-10",
-            button { class: "text-orange-500", "接单设置" }
-            button { class: "bg-orange-500 text-white px-8 py-2 rounded-full font-bold", "开工" }
         }
     }
 }
