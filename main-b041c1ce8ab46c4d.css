@@ -1,0 +1,357 @@
+@charset "UTF-8";
+/* 变量定义 */
+/* 全局样式 */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  background-color: #f5f5f5;
+}
+
+/* 容器样式 */
+.home-container,
+.orders-container,
+.wallet-container,
+.profile-container {
+  max-width: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 导航栏样式 */
+.nav-bar {
+  background-color: #FFD700;
+  padding: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.nav-bar .nav-title {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #333;
+}
+.nav-bar .nav-actions {
+  display: flex;
+  gap: 1rem;
+}
+.nav-bar .nav-btn {
+  background: none;
+  border: none;
+  padding: 0.5rem;
+  cursor: pointer;
+  color: #333;
+}
+
+/* 主要内容区域样式 */
+.main-content {
+  flex: 1;
+  padding: 1rem;
+}
+
+/* 订单列表样式 */
+.order-list {
+  background: white;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+.order-list .order-items {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+.order-list .order-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  border: 1px solid #eee;
+  border-radius: 4px;
+}
+.order-list .order-item .order-info h3 {
+  margin-bottom: 0.5rem;
+  color: #333;
+}
+.order-list .order-item .order-info p {
+  color: #666;
+  font-size: 0.9rem;
+}
+.order-list .order-item .order-price {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.5rem;
+}
+.order-list .order-item .order-price span {
+  color: #FF6B6B;
+  font-weight: bold;
+}
+.order-list .order-item .accept-btn {
+  background-color: #FFD700;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+/* 底部导航栏样式 */
+.bottom-nav {
+  background: white;
+  display: flex;
+  justify-content: space-around;
+  padding: 0.5rem;
+  position: sticky;
+  bottom: 0;
+  border-top: 1px solid #eee;
+}
+.bottom-nav .nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.5rem;
+  cursor: pointer;
+}
+.bottom-nav .nav-item .nav-icon {
+  font-size: 1.5rem;
+}
+.bottom-nav .nav-item .nav-text {
+  font-size: 0.8rem;
+  color: #666;
+}
+
+/* 订单页面样式 */
+.order-tabs {
+  display: flex;
+  background: white;
+  padding: 1rem;
+  gap: 1rem;
+  border-bottom: 1px solid #eee;
+}
+.order-tabs .order-tab {
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  border-radius: 4px;
+}
+.order-tabs .order-tab.active {
+  background-color: #FFD700;
+  color: #333;
+  font-weight: bold;
+}
+
+.order-card {
+  background: white;
+  margin: 1rem;
+  padding: 1rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+.order-card .order-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+.order-card .order-status {
+  color: #FF6B6B;
+  font-weight: bold;
+}
+.order-card .order-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+.order-card .order-actions .action-btn {
+  padding: 0.5rem 1rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background: white;
+  cursor: pointer;
+}
+.order-card .order-actions .action-btn.primary {
+  background: #FFD700;
+  border: none;
+}
+
+/* 钱包页面样式 */
+.balance-card {
+  background: linear-gradient(135deg, #FFD700, #FFA500);
+  margin: 1rem;
+  padding: 2rem;
+  border-radius: 12px;
+  color: white;
+  text-align: center;
+}
+.balance-card .balance-title {
+  font-size: 1.2rem;
+  margin-bottom: 1rem;
+}
+.balance-card .balance-amount {
+  font-size: 2rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+}
+.balance-card .balance-actions {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+}
+.balance-card .balance-actions .balance-btn {
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid white;
+  color: white;
+  padding: 0.5rem 1.5rem;
+  border-radius: 20px;
+  cursor: pointer;
+}
+
+.income-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin: 1rem;
+  background: white;
+  padding: 1rem;
+  border-radius: 8px;
+}
+.income-stats .stat-item {
+  text-align: center;
+}
+.income-stats .stat-item .stat-value {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #333;
+}
+.income-stats .stat-item .stat-label {
+  font-size: 0.9rem;
+  color: #666;
+  margin-top: 0.25rem;
+}
+
+.transaction-list {
+  background: white;
+  margin: 1rem;
+  padding: 1rem;
+  border-radius: 8px;
+}
+.transaction-list .transaction-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 0;
+  border-bottom: 1px solid #eee;
+}
+.transaction-list .transaction-item .transaction-info {
+  flex: 1;
+}
+.transaction-list .transaction-item .transaction-info .transaction-type {
+  font-weight: bold;
+  color: #333;
+}
+.transaction-list .transaction-item .transaction-info .transaction-time, .transaction-list .transaction-item .transaction-info .transaction-desc {
+  font-size: 0.9rem;
+  color: #666;
+  margin-top: 0.25rem;
+}
+.transaction-list .transaction-item .transaction-amount {
+  font-weight: bold;
+}
+.transaction-list .transaction-item .transaction-amount.income {
+  color: #4CAF50;
+}
+.transaction-list .transaction-item .transaction-amount.expense {
+  color: #FF6B6B;
+}
+
+/* 个人资料页面样式 */
+.user-card {
+  background: white;
+  margin: 1rem;
+  padding: 2rem;
+  border-radius: 12px;
+  text-align: center;
+}
+.user-card .user-avatar img {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  margin-bottom: 1rem;
+}
+.user-card .user-info h2 {
+  margin-bottom: 0.5rem;
+  color: #333;
+}
+.user-card .user-info p {
+  color: #666;
+  margin-bottom: 1rem;
+}
+.user-card .edit-profile-btn {
+  background: #FFD700;
+  border: none;
+  padding: 0.5rem 1.5rem;
+  border-radius: 20px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+  margin: 1rem;
+  background: white;
+  padding: 1rem;
+  border-radius: 8px;
+}
+
+.feature-list {
+  background: white;
+  margin: 1rem;
+  border-radius: 8px;
+}
+.feature-list .feature-item {
+  display: flex;
+  align-items: center;
+  padding: 1rem;
+  border-bottom: 1px solid #eee;
+  cursor: pointer;
+}
+.feature-list .feature-item .feature-icon {
+  font-size: 1.5rem;
+  margin-right: 1rem;
+}
+.feature-list .feature-item .feature-content {
+  flex: 1;
+}
+.feature-list .feature-item .feature-content h3 {
+  color: #333;
+  margin-bottom: 0.25rem;
+}
+.feature-list .feature-item .feature-content p {
+  color: #666;
+  font-size: 0.9rem;
+}
+.feature-list .feature-item .feature-arrow {
+  color: #999;
+}
+
+.logout-btn {
+  margin: 2rem 1rem;
+  padding: 1rem;
+  background: #FF6B6B;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  width: calc(100% - 2rem);
+}
