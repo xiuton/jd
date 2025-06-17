@@ -3,11 +3,17 @@ name: Build and Deploy Dioxus App
 on:
   push:
     branches:
+<<<<<<< HEAD
       - main  # 或 main，根据你的主分支名
+=======
+      - main  # 或 master，根据你的主分支名
+>>>>>>> 8877be7 (build(ci): github action updated)
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write  # 关键权限设置
 
     steps:
       - name: Checkout code
