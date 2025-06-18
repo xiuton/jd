@@ -1,7 +1,11 @@
-[build]
-target = "index.html"
-release = false
+[build] # 构建配置
+target = "index.html" # 构建目标
+release = false # 是否发布
 
-[serve]
-port = 8080
-open = true 
+[serve] # 本地开发服务器配置
+port = 8080 # 端口
+open = true # 是否自动打开浏览器
+
+[dev] # 开发配置
+port = 8080 # 端口
+open = true # 是否自动打开浏览器
