@@ -1,4 +1,5 @@
 use dioxus::prelude::*;
+use crate::components::HeaderBar;
 
 #[component]
 pub fn Home() -> Element {
@@ -21,100 +22,6 @@ pub fn Home() -> Element {
             // 侧边栏抽屉
             if *show_sidebar.read() {
                 SidebarDrawer { on_close: move |_| show_sidebar.set(false) }
-            }
-        }
-    }
-}
-
-#[component]
-fn HeaderBar(on_menu_click: EventHandler<()>) -> Element {
-    rsx! {
-        div { class: "bg-black px-4 py-3 flex items-center justify-between sticky top-0 z-20",
-            div {
-                class: "flex items-center",
-                button {
-                    class: "w-7 h-7 border border-slate-600 bg-black bg-opacity-50 text-white rounded-full flex items-center justify-center text-xl",
-                    onclick: move |_| on_menu_click.call(()),
-                    svg {
-                        class: "w-5 h-5",
-                        view_box: "0 0 24 24",
-                        fill: "none",
-                        stroke: "currentColor",
-                        stroke_width: "2",
-                        stroke_linecap: "round",
-                        stroke_linejoin: "round",
-                        path { d: "M4 6h16" }
-                        path { d: "M4 12h16" }
-                        path { d: "M4 18h16" }
-                    }
-                }
-                div {
-                    class: "flex items-center ml-2 border border-slate-600 rounded-full px-[5px] py-[3px] bg-black bg-opacity-50",
-                    // 红色圆点图标带白色横杠
-                    svg {
-                        class: "w-5 h-5 mr-1",
-                        view_box: "0 0 24 24",
-                        circle { 
-                            cx: "12",
-                            cy: "12",
-                            r: "10",
-                            fill: "rgb(234, 67, 53)"
-                        }
-                        path { 
-                            d: "M8 12h8",
-                            stroke: "white",
-                            stroke_width: "2",
-                            stroke_linecap: "round"
-                        }
-                    }
-                    span { 
-                        class: "text-[15px] leading-none text-white", 
-                        "已收工" 
-                    }
-                    // 倒三角图标
-                    svg {
-                        class: "w-4 h-4 ml-1",
-                        view_box: "0 0 24 24",
-                        path { 
-                            d: "M12 16L6 10H18L12 16Z",
-                            fill: "white"
-                        }
-                    }
-                }
-            }
-            div {
-                class: "flex items-center space-x-4",
-                button {
-                    class: "flex items-center text-gray-400",
-                    // 地图路线图标
-                    svg {
-                        class: "w-5 h-5",
-                        view_box: "0 0 24 24",
-                        fill: "none",
-                        stroke: "currentColor",
-                        stroke_width: "2",
-                        stroke_linecap: "round",
-                        stroke_linejoin: "round",
-                        path { d: "M3 7l6 6 4-4 8 8" }
-                        path { d: "M14 3l7 0 0 7" }
-                    }
-                    span { class: "ml-1", "路线" }
-                }
-                button {
-                    class: "flex items-center text-gray-400",
-                    // 铃铛图标
-                    svg {
-                        class: "w-5 h-5",
-                        view_box: "0 0 24 24",
-                        fill: "none",
-                        stroke: "currentColor",
-                        stroke_width: "2",
-                        stroke_linecap: "round",
-                        stroke_linejoin: "round",
-                        path { d: "M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" }
-                        path { d: "M13.73 21a2 2 0 0 1-3.46 0" }
-                    }
-                }
             }
         }
     }
