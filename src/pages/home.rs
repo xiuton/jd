@@ -17,7 +17,7 @@ pub fn Home() -> Element {
     let is_working = use_is_working();
 
     rsx! {
-        div { class: "min-h-screen bg-[#f3f3f3] flex flex-col pb-20",
+        div { class: "min-h-screen bg-[#f2f2f2] flex flex-col pb-20",
             // 顶部栏
             HeaderBar { on_menu_click: move |_| show_sidebar.set(true), is_working: is_working }
             // 订单Tab
@@ -40,9 +40,9 @@ pub fn Home() -> Element {
 #[component]
 fn OrderTabs(active: i32, on_change: EventHandler<i32>) -> Element {
     let tabs = vec![
-        ("新任务", "border-orange-500 text-orange-500", "text-gray-500"),
-        ("待取货", "border-orange-500 text-orange-500", "text-gray-500"),
-        ("配送中", "border-orange-500 text-orange-500", "text-gray-500"),
+        ("新任务", "border-white text-white", "text-gray-500"),
+        ("待取货", "border-white text-white", "text-gray-500"),
+        ("配送中", "border-white text-white", "text-gray-500"),
     ];
 
     rsx! {
@@ -50,15 +50,24 @@ fn OrderTabs(active: i32, on_change: EventHandler<i32>) -> Element {
             {tabs.into_iter().enumerate().map(|(index, (text, active_class, inactive_class))| {
                 let is_active = active == index as i32;
                 let class_name = if is_active {
-                    format!("flex-1 text-center py-2 cursor-pointer border-b-2 font-bold {}", active_class)
+                    format!("text-center text-sm px-4 py-2 cursor-pointer relative after:content-[''] after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2 after:w-[30px] after:h-[4px] after:bg-white after:rounded-full {}", active_class)
                 } else {
-                    format!("flex-1 text-center py-2 cursor-pointer {}", inactive_class)
+                    format!("text-center text-sm px-4 py-2 cursor-pointer {}", inactive_class)
                 };
                 rsx! {
                     div {
                         class: class_name,
                         onclick: move |_| on_change.call(index as i32),
-                        "{text}"
+                        span { "{text}" }
+                        // 倒三角svg
+                        svg {
+                            class: if is_active { "inline w-4 h-4 align-middle text-white" } else { "inline w-4 h-4 align-middle text-gray-500" },
+                            view_box: "0 0 24 24",
+                            path { 
+                                d: "M12 16L6 10H18L12 16Z",
+                                fill: "currentColor"
+                            }
+                        }
                     }
                 }
             })}
@@ -68,60 +77,69 @@ fn OrderTabs(active: i32, on_change: EventHandler<i32>) -> Element {
 
 #[component]
 fn OrderList(active_tab: i32) -> Element {
+    let is_working = use_is_working();
     // 根据不同的 tab 显示不同的订单数据
     let orders = match active_tab {
         0 => vec![ // 新任务
             (
-                "35分钟内(16:54前)送达",
+                "35分钟内",
+                "16:54前",
                 "3.75",
+                "1个冲单奖",
+                "2200",
                 "拾阶面包 | 世纪公园店",
                 "管城回族区美景天城(石化路南)",
-                "2.2km",
+                "1400",
                 "未来路康桥知园西院3号楼一单元20**",
-                "1.4km",
-                "1个冲单奖",
+                "畅跑单",
                 "食品小吃 · 1公斤",
                 None,
             ),
             (
-                "26分钟内(16:46前)送达",
+                "26分钟内",
+                "16:46前",
                 "4.1",
+                "1个冲单奖",
+                "2900",
                 "蜜雪冰城（紫南花园店）",
                 "郑州市管城回族区紫东路紫南花园一期商铺(紫东路57-13号)",
-                "2.9km",
+                "594",
                 "河南郑州市管城回族区紫荆山南路街道郑州市紫东路121-1号，紫祥烟酒店商行",
-                "594m",
-                "1个冲单奖 必达单 畅跑单",
+                "必达单 畅跑单",
                 "饮料 · 0.5公斤 · 1件",
                 Some("门店订单:#84 [JD321680755174] 缺货时电话与我沟通"),
             ),
         ],
         1 => vec![ // 待取货
             (
-                "15分钟内取货",
-                "5.0",
-                "肯德基 | 商都路店",
-                "金水区商都路与花园路交叉口",
-                "1.5km",
-                "金水区国基路24号院",
-                "800m",
-                "必达单",
-                "快餐 · 2件",
+                "35分钟内",
+                "16:54前",
+                "3.75",
+                "1个冲单奖",
+                "2200",
+                "拾阶面包 | 世纪公园店",
+                "管城回族区美景天城(石化路南)",
+                "1400",
+                "未来路康桥知园西院3号楼一单元20**",
+                "畅跑单",
+                "食品小吃 · 1公斤",
                 None,
             ),
         ],
         2 => vec![ // 配送中
             (
-                "10分钟内送达",
-                "6.5",
-                "麦当劳 | 文化路店",
-                "金水区文化路与农业路交叉口",
-                "0.5km",
-                "文化路89号",
-                "300m",
-                "超时预警",
-                "快餐 · 3件",
-                Some("顾客等急了，请尽快送达"),
+                "26分钟内",
+                "16:46前",
+                "4.1",
+                "1个冲单奖",
+                "2900",
+                "蜜雪冰城（紫南花园店）",
+                "郑州市管城回族区紫东路紫南花园一期商铺(紫东路57-13号)",
+                "594",
+                "河南郑州市管城回族区紫荆山南路街道郑州市紫东路121-1号，紫祥烟酒店商行",
+                "必达单",
+                "饮料 · 0.5公斤 · 1件",
+                Some("门店订单:#84 [JD321680755174] 缺货时电话与我沟通"),
             ),
         ],
         _ => vec![],
@@ -129,19 +147,23 @@ fn OrderList(active_tab: i32) -> Element {
 
     rsx! {
         div { class: "px-2 mt-2 space-y-3 flex-1 overflow-y-auto",
-            {orders.into_iter().map(|(time_left, price, shop, shop_addr, distance, user_addr, user_distance, tag, goods, note)| {
+            {orders.into_iter().map(|(time, to_time, price, award, start_distance, start_name, start_addr, shop_distance, shop_name, tag, goods, note)| {
                 rsx! {
                     OrderCard {
-                        time_left: time_left,
+                        time: time,
+                        to_time: to_time,
                         price: price,
-                        shop: shop,
-                        shop_addr: shop_addr,
-                        distance: distance,
-                        user_addr: user_addr,
-                        user_distance: user_distance,
+                        award: award,
+                        start_distance: start_distance,
+                        start_name: start_name,
+                        start_addr: start_addr,
+                        shop_distance: shop_distance,
+                        shop_name: shop_name,
                         tag: tag,
                         goods: goods,
                         note: note,
+                        active_tab: active_tab,
+                        is_working: is_working,
                     }
                 }
             })}
@@ -218,18 +240,19 @@ fn BottomBar(is_working: Signal<bool>) -> Element {
                 // 刷新按钮
                 button {
                     class: "flex items-center justify-center border border-gray-300 text-gray-700 text-lg font-bold rounded-xl flex-1 h-12 ml-2 bg-white shadow transition-all duration-150 active:scale-95",
-                    // 刷新(旋转箭头)图标
+                    // 标准刷新(圆形箭头)图标
                     svg {
-                        class: "w-5 h-5 mr-2 animate-spin-slow",
+                        class: "w-5 h-5 mr-2",
                         view_box: "0 0 24 24",
                         fill: "none",
                         stroke: "currentColor",
                         stroke_width: "2",
                         stroke_linecap: "round",
                         stroke_linejoin: "round",
-                        path { d: "M4 4v6h6" }
-                        path { d: "M20 20v-6h-6" }
-                        path { d: "M5 19A9 9 0 0 1 19 5" }
+                        // 圆弧
+                        path { d: "M21 12a9 9 0 1 1-6.219-8.56" }
+                        // 箭头
+                        polyline { points: "22 4 21 12 13 11" }
                     }
                     span { "刷新" }
                 }
@@ -259,40 +282,130 @@ fn BottomBar(is_working: Signal<bool>) -> Element {
 
 #[component]
 fn OrderCard(
-    time_left: &'static str,
+    time: &'static str,
+    to_time: &'static str,
     price: &'static str,
-    shop: &'static str,
-    shop_addr: &'static str,
-    distance: &'static str,
-    user_addr: &'static str,
-    user_distance: &'static str,
+    award: &'static str,
+    start_distance: &'static str,
+    start_name: &'static str,
+    start_addr: &'static str,
+    shop_distance: &'static str,
+    shop_name: &'static str,
     tag: &'static str,
     goods: &'static str,
     note: Option<&'static str>,
+    active_tab: i32,
+    is_working: Signal<bool>,
 ) -> Element {
+    let mut arrived = use_signal(|| false);
+    let disabled = !*is_working.read();
+    let btn_disabled = if disabled { "opacity-50 cursor-not-allowed" } else { "" };
     rsx! {
-        div { class: "bg-white rounded-lg shadow p-4 space-y-2",
+        div { class: "bg-white rounded-lg p-4 space-y-2",
             div { class: "flex justify-between items-center",
-                span { class: "text-orange-500 text-sm font-bold", "{time_left}" }
-                span { class: "text-red-500 text-lg font-bold", "¥{price}" }
+                div { class: "flex",
+                    span { class: "text-orange-500 text-sm", "{time}" }
+                    span { class: "text-gray-500 text-sm", "({to_time})送达" }
+                }
+                div { class: "flex items-baseline",
+                    i { class: "text-[red] text-xs font-bold not-italic", "¥" }
+                    span { class: "text-[red] text-lg font-bold", "{price}" }
+                }
             }
-            div { class: "flex text-xs text-gray-500 space-x-4",
-                span { "{distance}" }
-                span { "{user_distance}" }
+            div {
+                class: "flex flex-col gap-y-2",
+                div {
+                    class: "relative",
+                    div {
+                        class: "absolute top-[40px] left-[15px] w-[2px] h-[calc(100%-30px)] bg-gray-200",
+                    }
+                    if start_distance.parse::<i32>().unwrap_or(0) >= 1000 {
+                        div {
+                            class: "absolute left-0 top-0 text-center w-[30px]",
+                            span { class: "font-bold", {format!("{:.1}", start_distance.parse::<f64>().unwrap_or(0.0) / 1000.0)} }
+                            span { class: "text-xs block text-gray-500 leading-none", "km" }
+                        }
+                    } else {
+                        div {
+                            class: "absolute left-0 top-0 text-center w-[30px]",
+                            span { class: "font-bold", {format!("{}", start_distance)} }
+                            span { class: "text-xs block text-gray-500 leading-none", "m" }
+                        }
+                    }
+                    div {
+                        class: "ml-[40px]",
+                        div { class: "text-lg", "{start_name}" }
+                        div { class: "text-xs text-gray-500", "{start_addr}" }
+                    }
+                }
+                div {
+                    class: "relative",
+                    if shop_distance.parse::<i32>().unwrap_or(0) >= 1000 {
+                        div {
+                            class: "absolute left-0 top-0 text-center w-[30px]",
+                            span { class: "font-bold", {format!("{:.1}", shop_distance.parse::<f64>().unwrap_or(0.0) / 1000.0)} }
+                            span { class: "text-xs block text-gray-500 leading-none", "km" }
+                        }
+                    } else {
+                        div {
+                            class: "absolute left-0 top-0 text-center w-[30px]",
+                            span { class: "font-bold", {format!("{}", shop_distance)} }
+                            span { class: "text-xs block text-gray-500 leading-none", "m" }
+                        }
+                    }
+                    div { class: "text-lg ml-[40px]", "{shop_name}" }
+                }
             }
-            div { class: "font-bold", "{shop}" }
-            div { class: "text-xs text-gray-500", "{shop_addr}" }
-            div { class: "text-xs text-gray-500", "{user_addr}" }
-            div { class: "flex flex-wrap gap-1 mt-1",
-                {tag.split(' ').map(|t| rsx! {
-                    span { class: "bg-orange-100 text-orange-500 px-2 py-0.5 rounded text-xs", "{t}" }
-                })}
+            div {
+                class: "flex flex-col justify-between gap-y-1 ml-[40px]",
+                div { class: "flex flex-wrap gap-1",
+                    {tag.split(' ').map(|t| rsx! {
+                        if t == "必达单" {
+                            span { class: "bg-orange-100 text-orange-500 border border-orange-500 px-2 py-0.5 rounded text-xs", "{t}" }
+                        } else if t == "畅跑单" {
+                            span { class: "bg-blue-100 text-blue-500 border border-blue-500 px-2 py-0.5 rounded text-xs", "{t}" }
+                        } else {
+                            span { class: "bg-gray-100 text-gray-500 border border-gray-500 px-2 py-0.5 rounded text-xs", "{t}" }
+                        }
+                    })}
+                }
+                div { class: "text-xs text-gray-500", "{goods}" }
+                if let Some(n) = note {
+                    div { class: "bg-yellow-100 text-yellow-800 p-1 rounded text-xs mt-1", "{n}" }
+                }
             }
-            div { class: "text-xs text-gray-500", "{goods}" }
-            if let Some(n) = note {
-                div { class: "bg-yellow-100 text-yellow-800 p-1 rounded text-xs mt-1", "{n}" }
+            if active_tab == 0 {
+                button {
+                    class: format!("w-full mt-2 bg-orange-400 text-white py-2 rounded font-bold {}", btn_disabled),
+                    disabled: disabled,
+                    "接单"
+                }
+            } else if active_tab == 1 {
+                if !*arrived.read() {
+                    button {
+                        class: format!("w-full mt-2 bg-orange-400 text-white py-2 rounded font-bold {}", btn_disabled),
+                        disabled: disabled,
+                        onclick: move |_| {
+                            if !disabled {
+                                arrived.set(true);
+                            }
+                        },
+                        "确认到店"
+                    }
+                } else {
+                    button {
+                        class: format!("w-full mt-2 bg-green-500 text-white py-2 rounded font-bold {}", btn_disabled),
+                        disabled: disabled,
+                        "确认取货"
+                    }
+                }
+            } else if active_tab == 2 {
+                button {
+                    class: format!("w-full mt-2 bg-green-500 text-white py-2 rounded font-bold {}", btn_disabled),
+                    disabled: disabled,
+                    "送达"
+                }
             }
-            button { class: "w-full mt-2 bg-orange-400 text-white py-2 rounded font-bold", "接单" }
         }
     }
 }

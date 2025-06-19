@@ -7,16 +7,6 @@ thread_local! {
     static LAST_CONFIRM_DATE: RefCell<Option<String>> = RefCell::new(None);
 }
 
-fn is_today_confirmed() -> bool {
-    let today = Local::now().format("%Y-%m-%d").to_string();
-    LAST_CONFIRM_DATE.with(|cell| cell.borrow().as_ref().map(|d| d == &today).unwrap_or(false))
-}
-
-fn set_today_confirmed() {
-    let today = Local::now().format("%Y-%m-%d").to_string();
-    LAST_CONFIRM_DATE.with(|cell| *cell.borrow_mut() = Some(today));
-}
-
 #[component]
 fn WorkingIcon() -> Element {
     rsx! {
@@ -83,7 +73,6 @@ pub fn HeaderBar(on_menu_click: EventHandler<()>, is_working: Signal<bool>) -> E
                         class: "flex-1 bg-orange-500 text-white rounded-lg py-2 font-bold text-base active:scale-95 transition-all",
                         onclick: move |_| {
                             is_working.set(true);
-                            set_today_confirmed();
                             show_confirm.set(false);
                         },
                         "确认"
@@ -109,11 +98,11 @@ pub fn HeaderBar(on_menu_click: EventHandler<()>, is_working: Signal<bool>) -> E
                 class: "flex items-center relative gap-2",
                 // Menu button
                 button { 
-                    class: "flex items-center",
+                    class: "flex items-center justify-center w-7 h-7 border border-slate-600 rounded-full bg-white bg-opacity-10",
                     onclick: move |_| on_menu_click.call(()),
                     // Hamburger menu icon
                     svg {
-                        class: "w-6 h-6",
+                        class: "w-[18px] h-[18px]",
                         view_box: "0 0 24 24",
                         fill: "none",
                         stroke: "currentColor",
@@ -127,7 +116,7 @@ pub fn HeaderBar(on_menu_click: EventHandler<()>, is_working: Signal<bool>) -> E
                 div {
                     class: "flex items-center relative",
                     button {
-                        class: "flex items-center border border-slate-600 rounded-full px-[5px] py-[3px] bg-black bg-opacity-50 relative z-10",
+                        class: "flex items-center border border-slate-600 rounded-full px-[5px] py-[3px] bg-white bg-opacity-10 relative z-10",
                         onclick: move |_| show_work_status_dialog.set(true),
                         // Status icon (red circle with dash or green checkmark)
                         svg {
@@ -163,11 +152,12 @@ pub fn HeaderBar(on_menu_click: EventHandler<()>, is_working: Signal<bool>) -> E
                         div {
                             class: "w-full absolute left-1/2 -translate-x-1/2 top-[110%] bg-white rounded-lg shadow-lg px-4 py-2 flex items-center z-20 min-w-[80px] min-h-[40px]",
                             onclick: move |_| {
-                                if !*is_working.read() && !is_today_confirmed() {
+                                if !*is_working.read() {
+                                    // 当前是"收工"，点击"开工"时弹二次确认
                                     show_confirm.set(true);
                                 } else {
-                                    let current_status = *is_working.read();
-                                    is_working.set(!current_status);
+                                    // 当前是"开工"，点击"收工"直接切换
+                                    is_working.set(false);
                                 }
                                 show_work_status_dialog.set(false);
                             },
@@ -200,8 +190,8 @@ pub fn HeaderBar(on_menu_click: EventHandler<()>, is_working: Signal<bool>) -> E
             }
             div { class: "flex items-center space-x-4",
                 button {
-                    class: "flex items-center text-gray-400",
-                    // Route icon
+                    class: "flex items-center border border-slate-600 rounded-full bg-white bg-opacity-10 px-[5px] py-[3px] text-[14px]",
+                    // 设计图风格路线图标：矩形地图框+定位点
                     svg {
                         class: "w-5 h-5",
                         view_box: "0 0 24 24",
@@ -210,16 +200,19 @@ pub fn HeaderBar(on_menu_click: EventHandler<()>, is_working: Signal<bool>) -> E
                         stroke_width: "2",
                         stroke_linecap: "round",
                         stroke_linejoin: "round",
-                        path { d: "M3 7l6 6 4-4 8 8" }
-                        path { d: "M14 3l7 0 0 7" }
+                        // 地图矩形框
+                        rect { x: "3", y: "5", width: "18", height: "14", rx: "3", stroke: "currentColor", fill: "none" }
+                        // 地图定位点
+                        path { d: "M12 10.5C12 9.119 13.119 8 14.5 8C15.881 8 17 9.119 17 10.5C17 12.5 14.5 15 14.5 15C14.5 15 12 12.5 12 10.5Z", stroke: "currentColor", fill: "none" }
+                        circle { cx: "14.5", cy: "10.5", r: "1", fill: "currentColor", stroke: "none" }
                     }
-                    span { class: "ml-1", "路线" }
+                    span { class: "ml-1 leading-none", "路线" }
                 }
                 button {
-                    class: "flex items-center text-gray-400",
+                    class: "flex items-center justify-center w-7 h-7 border border-slate-600 rounded-full bg-white bg-opacity-10",
                     // Bell icon
                     svg {
-                        class: "w-5 h-5",
+                        class: "w-[18px] h-[18px]",
                         view_box: "0 0 24 24",
                         fill: "none",
                         stroke: "currentColor",
