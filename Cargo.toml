@@ -15,3 +15,4 @@ js-sys = "0.3"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 wasm-logger = "0.2"
+chrono = "0.4"

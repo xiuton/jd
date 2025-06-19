@@ -1,15 +1,25 @@
 use dioxus::prelude::*;
 use crate::components::HeaderBar;
 
+// 全局信号用于共享工作状态
+thread_local! {
+    static IS_WORKING: Signal<bool> = Signal::new(false);
+}
+
+pub fn use_is_working() -> Signal<bool> {
+    IS_WORKING.with(|s| s.clone())
+}
+
 #[component]
 pub fn Home() -> Element {
     let mut show_sidebar = use_signal(|| false);
     let mut active_tab = use_signal(|| 0);
+    let is_working = use_is_working();
 
     rsx! {
-        div { class: "min-h-screen bg-gray-100 flex flex-col pb-20",
+        div { class: "min-h-screen bg-[#f3f3f3] flex flex-col pb-20",
             // 顶部栏
-            HeaderBar { on_menu_click: move |_| show_sidebar.set(true) }
+            HeaderBar { on_menu_click: move |_| show_sidebar.set(true), is_working: is_working }
             // 订单Tab
             OrderTabs { 
                 active: *active_tab.read(),
@@ -18,7 +28,7 @@ pub fn Home() -> Element {
             // 订单列表
             OrderList { active_tab: *active_tab.read() }
             // 底部导航栏
-            BottomBar {}
+            BottomBar { is_working: is_working }
             // 侧边栏抽屉
             if *show_sidebar.read() {
                 SidebarDrawer { on_close: move |_| show_sidebar.set(false) }
@@ -36,7 +46,7 @@ fn OrderTabs(active: i32, on_change: EventHandler<i32>) -> Element {
     ];
 
     rsx! {
-        div { class: "flex bg-black border-b sticky top-[52px] z-10",
+        div { class: "flex bg-black sticky top-[52px] z-10",
             {tabs.into_iter().enumerate().map(|(index, (text, active_class, inactive_class))| {
                 let is_active = active == index as i32;
                 let class_name = if is_active {
@@ -140,13 +150,109 @@ fn OrderList(active_tab: i32) -> Element {
 }
 
 #[component]
-fn BottomBar() -> Element {
+fn BottomBar(is_working: Signal<bool>) -> Element {
+    let mut show_confirm = use_signal(|| false);
     rsx! {
-        div { class: "fixed bottom-0 left-0 right-0 bg-white flex items-center justify-around px-4 py-2 border-t shadow z-20",
-            div { class: "flex flex-col items-center text-orange-500", span { class: "text-xl", "📋" } span { class: "text-xs mt-1", "接单" } }
-            div { class: "flex flex-col items-center text-gray-400", span { class: "text-xl", "💰" } span { class: "text-xs mt-1", "钱包" } }
-            div { class: "flex flex-col items-center text-gray-400", span { class: "text-xl", "👤" } span { class: "text-xs mt-1", "我的" } }
-            button { class: "bg-orange-500 text-white px-8 py-2 rounded-full font-bold -mt-8 shadow-lg text-lg", "开工" }
+        // 弹窗遮罩和内容
+        if *show_confirm.read() {
+            // 遮罩
+            div {
+                class: "fixed inset-0 bg-black bg-opacity-40 z-40 flex items-center justify-center",
+                // 点击遮罩不关闭弹窗，必须点按钮
+                // 内容
+                div {
+                    class: "bg-white rounded-xl shadow-lg p-6 w-80 max-w-full flex flex-col items-center z-50",
+                    // 蓝色 info 图标
+                    div {
+                        class: "mb-3",
+                        svg {
+                            class: "w-12 h-12 text-blue-400 mx-auto",
+                            view_box: "0 0 48 48",
+                            fill: "none",
+                            circle { cx: "24", cy: "24", r: "24", fill: "#E6F0FA" }
+                            path { d: "M24 14a2 2 0 1 1 0 4 2 2 0 0 1 0-4zm-2 8a2 2 0 0 1 2-2h0a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h0a2 2 0 0 1-2-2V22z", fill: "#36A3F7" }
+                        }
+                    }
+                    div { class: "text-lg font-bold mb-2 text-gray-800", "请确认开工" }
+                    div { class: "text-gray-500 text-sm mb-5 text-center", "请确认已做好接单准备，开始工作后可以接单。" }
+                    div { class: "flex w-full gap-3 mt-2",
+                        button {
+                            class: "flex-1 bg-orange-500 text-white rounded-lg py-2 font-bold text-base active:scale-95 transition-all",
+                            onclick: move |_| {
+                                is_working.set(true);
+                                show_confirm.set(false);
+                            },
+                            "确认"
+                        }
+                        button {
+                            class: "flex-1 border border-gray-300 text-gray-700 rounded-lg py-2 font-bold text-base active:scale-95 transition-all",
+                            onclick: move |_| show_confirm.set(false),
+                            "取消"
+                        }
+                    }
+                }
+            }
+        }
+        div { 
+            class: "fixed bottom-0 left-0 right-0 bg-white flex items-center justify-between px-2 py-2 border-t shadow z-20",
+            // 左侧"接单设置"
+            button {
+                class: "flex flex-col items-center justify-center text-gray-600 px-2 py-1",
+                // 滑块图标
+                svg {
+                    class: "w-6 h-6 mb-1",
+                    view_box: "0 0 24 24",
+                    fill: "none",
+                    stroke: "currentColor",
+                    stroke_width: "2",
+                    stroke_linecap: "round",
+                    stroke_linejoin: "round",
+                    path { d: "M4 6h16" }
+                    path { d: "M4 12h16" }
+                    path { d: "M4 18h16" }
+                }
+                span { class: "text-xs", "接单设置" }
+            }
+            // 右侧按钮
+            if *is_working.read() {
+                // 刷新按钮
+                button {
+                    class: "flex items-center justify-center border border-gray-300 text-gray-700 text-lg font-bold rounded-xl flex-1 h-12 ml-2 bg-white shadow transition-all duration-150 active:scale-95",
+                    // 刷新(旋转箭头)图标
+                    svg {
+                        class: "w-5 h-5 mr-2 animate-spin-slow",
+                        view_box: "0 0 24 24",
+                        fill: "none",
+                        stroke: "currentColor",
+                        stroke_width: "2",
+                        stroke_linecap: "round",
+                        stroke_linejoin: "round",
+                        path { d: "M4 4v6h6" }
+                        path { d: "M20 20v-6h-6" }
+                        path { d: "M5 19A9 9 0 0 1 19 5" }
+                    }
+                    span { "刷新" }
+                }
+            } else {
+                // 开工按钮
+                button {
+                    class: "flex items-center justify-center bg-orange-500 text-white text-lg font-bold rounded-xl flex-1 h-12 ml-2 shadow transition-all duration-150 active:scale-95",
+                    onclick: move |_| show_confirm.set(true),
+                    // 向上箭头图标
+                    svg {
+                        class: "w-5 h-5 mr-2",
+                        view_box: "0 0 24 24",
+                        fill: "none",
+                        stroke: "currentColor",
+                        stroke_width: "2",
+                        stroke_linecap: "round",
+                        stroke_linejoin: "round",
+                        path { d: "M12 19V5" }
+                        path { d: "M5 12l7-7 7 7" }
+                    }
+                    span { "开工" }
+                }
+            }
         }
     }
 }
