@@ -1,6 +1,4 @@
 use dioxus::prelude::*;
-use crate::pages::home::use_is_working;
-use chrono::Local;
 use std::cell::RefCell;
 
 thread_local! {
@@ -53,7 +51,7 @@ pub fn HeaderBar(on_menu_click: EventHandler<()>, is_working: Signal<bool>) -> E
     // 复用BottomBar弹窗内容
     let confirm_popup = || rsx! {
         div {
-            class: "fixed inset-0 bg-black bg-opacity-40 z-40 flex items-center justify-center",
+            class: "fixed inset-0 bg-black/40 z-40 flex items-center justify-center",
             div {
                 class: "bg-white rounded-xl shadow-lg p-6 w-80 max-w-full flex flex-col items-center z-50",
                 div {
@@ -98,7 +96,7 @@ pub fn HeaderBar(on_menu_click: EventHandler<()>, is_working: Signal<bool>) -> E
                 class: "flex items-center relative gap-2",
                 // Menu button
                 button { 
-                    class: "flex items-center justify-center w-7 h-7 border border-slate-600 rounded-full bg-white bg-opacity-10",
+                    class: "flex items-center justify-center w-7 h-7 border border-slate-600 rounded-full bg-white/10",
                     onclick: move |_| on_menu_click.call(()),
                     // Hamburger menu icon
                     svg {
@@ -116,7 +114,7 @@ pub fn HeaderBar(on_menu_click: EventHandler<()>, is_working: Signal<bool>) -> E
                 div {
                     class: "flex items-center relative",
                     button {
-                        class: "flex items-center border border-slate-600 rounded-full px-[5px] py-[3px] bg-white bg-opacity-10 relative z-10",
+                        class: "flex items-center border border-slate-600 rounded-full px-[5px] py-[3px] bg-white/10 relative z-10",
                         onclick: move |_| show_work_status_dialog.set(true),
                         // Status icon (red circle with dash or green checkmark)
                         svg {
@@ -146,11 +144,11 @@ pub fn HeaderBar(on_menu_click: EventHandler<()>, is_working: Signal<bool>) -> E
                     if *show_work_status_dialog.read() {
                         // 蒙层，点击关闭气泡
                         div {
-                            class: "fixed inset-0 z-0 bg-black bg-opacity-50 backdrop-blur-sm",
+                            class: "fixed inset-0 z-0 bg-black/50 backdrop-blur-sm",
                             onclick: move |_| show_work_status_dialog.set(false),
                         }
                         div {
-                            class: "w-full absolute left-1/2 -translate-x-1/2 top-[110%] bg-white rounded-lg shadow-lg px-4 py-2 flex items-center z-20 min-w-[80px] min-h-[40px]",
+                            class: "w-full absolute top-[110%] inset-x-0 mx-auto bg-white rounded-lg shadow-lg px-4 py-2 flex items-center z-20 min-w-[80px] min-h-[40px]",
                             onclick: move |_| {
                                 if !*is_working.read() {
                                     // 当前是"收工"，点击"开工"时弹二次确认
@@ -163,7 +161,7 @@ pub fn HeaderBar(on_menu_click: EventHandler<()>, is_working: Signal<bool>) -> E
                             },
                             // 小三角
                             div {
-                                class: "absolute -top-2 left-1/2 -translate-x-1/2 w-4 h-4 overflow-hidden",
+                                class: "absolute -top-2 inset-x-0 mx-auto w-4 h-4 overflow-hidden",
                                 svg {
                                     class: "w-4 h-4",
                                     view_box: "0 0 16 8",
@@ -190,7 +188,7 @@ pub fn HeaderBar(on_menu_click: EventHandler<()>, is_working: Signal<bool>) -> E
             }
             div { class: "flex items-center space-x-4",
                 button {
-                    class: "flex items-center border border-slate-600 rounded-full bg-white bg-opacity-10 px-[5px] py-[3px] text-[14px]",
+                    class: "flex items-center border border-slate-600 rounded-full bg-white/10 px-[5px] py-[3px] text-[14px]",
                     // 设计图风格路线图标：矩形地图框+定位点
                     svg {
                         class: "w-5 h-5",
@@ -209,7 +207,7 @@ pub fn HeaderBar(on_menu_click: EventHandler<()>, is_working: Signal<bool>) -> E
                     span { class: "ml-1 leading-none", "路线" }
                 }
                 button {
-                    class: "flex items-center justify-center w-7 h-7 border border-slate-600 rounded-full bg-white bg-opacity-10",
+                    class: "flex items-center justify-center w-7 h-7 border border-slate-600 rounded-full bg-white/10",
                     // Bell icon
                     svg {
                         class: "w-[18px] h-[18px]",

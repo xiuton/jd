@@ -9,3 +9,27 @@ open = true # 是否自动打开浏览器
 [dev] # 开发配置
 port = 8080 # 端口
 open = true # 是否自动打开浏览器
+
+# [[hooks]]
+# stage = "pre_build"
+# command = "cmd"
+# command_arguments = [
+#   "/c",
+#   "npm run build:css"
+# ]
+
+# [[hooks]]
+# stage = "build"
+# command = "cmd"
+# command_arguments = [
+#   "/c", 
+#   "echo 打包中触发"
+# ]
+
+# [[hooks]]
+# stage = "post_build"
+# command = "cmd"
+# command_arguments = [
+#   "/c", 
+#   "echo 打包后触发"
+# ]

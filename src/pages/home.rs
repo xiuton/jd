@@ -50,9 +50,9 @@ fn OrderTabs(active: i32, on_change: EventHandler<i32>) -> Element {
             {tabs.into_iter().enumerate().map(|(index, (text, active_class, inactive_class))| {
                 let is_active = active == index as i32;
                 let class_name = if is_active {
-                    format!("text-center text-sm px-4 py-2 cursor-pointer relative after:content-[''] after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2 after:w-[30px] after:h-[4px] after:bg-white after:rounded-full {}", active_class)
+                    format!("text-center text-sm px-4 py-2 cursor-pointer relative after:content-[''] after:absolute after:bottom-0 after:inset-x-0 after:mx-auto after:w-[30px] after:h-[4px] after:bg-white after:rounded-full {}", active_class)
                 } else {
-                    format!("text-center text-sm px-4 py-2 cursor-pointer {}", inactive_class)
+                    format!("text-center text-sm px-4 py-2 cursor-pointer relative {}", inactive_class)
                 };
                 rsx! {
                     div {
@@ -146,7 +146,7 @@ fn OrderList(active_tab: i32) -> Element {
     };
 
     rsx! {
-        div { class: "px-2 mt-2 space-y-3 flex-1 overflow-y-auto",
+        div { class: "px-2 mt-2 space-y-2 flex-1 overflow-y-auto",
             {orders.into_iter().map(|(time, to_time, price, award, start_distance, start_name, start_addr, shop_distance, shop_name, tag, goods, note)| {
                 rsx! {
                     OrderCard {
@@ -179,7 +179,7 @@ fn BottomBar(is_working: Signal<bool>) -> Element {
         if *show_confirm.read() {
             // 遮罩
             div {
-                class: "fixed inset-0 bg-black bg-opacity-40 z-40 flex items-center justify-center",
+                class: "fixed inset-0 bg-black/40 z-40 flex items-center justify-center",
                 // 点击遮罩不关闭弹窗，必须点按钮
                 // 内容
                 div {
@@ -216,7 +216,7 @@ fn BottomBar(is_working: Signal<bool>) -> Element {
             }
         }
         div { 
-            class: "fixed bottom-0 left-0 right-0 bg-white flex items-center justify-between px-2 py-2 border-t shadow z-20",
+            class: "fixed bottom-0 left-0 right-0 bg-white flex items-center justify-between px-2 py-2 border-t border-[#e5e7eb] shadow z-20",
             // 左侧"接单设置"
             button {
                 class: "flex flex-col items-center justify-center text-gray-600 px-2 py-1",
@@ -301,7 +301,7 @@ fn OrderCard(
     let disabled = !*is_working.read();
     let btn_disabled = if disabled { "opacity-50 cursor-not-allowed" } else { "" };
     rsx! {
-        div { class: "bg-white rounded-lg p-4 space-y-2",
+        div { class: "bg-white rounded-xl p-3 flex flex-col gap-y-1.5",
             div { class: "flex justify-between items-center",
                 div { class: "flex",
                     span { class: "text-orange-500 text-sm", "{time}" }
@@ -313,23 +313,62 @@ fn OrderCard(
                 }
             }
             div {
-                class: "flex flex-col gap-y-2",
+                class: "flex justify-between items-center",
+                span {
+                    class: "bg-red-100 text-red-500 border border-red-500 px-1 py-0.1 rounded text-[12px] flex items-center",
+                    svg {
+                        class: "w-3 h-4 mr-1",
+                        view_box: "0 0 24 24",
+                        preserve_aspect_ratio: "none",
+                        defs {
+                            linearGradient {
+                                id: "redPacketGradient",
+                                x1: "0%", y1: "0%", x2: "100%", y2: "100%",
+                                stop { offset: "0%", stop_color: "#ff7e5f" }
+                                stop { offset: "100%", stop_color: "#feb47b" }
+                            }
+                        }
+                        rect {
+                            x: "3", y: "3",
+                            width: "18", height: "18",
+                            rx: "2",
+                            fill: "url(#redPacketGradient)"
+                        }
+                        path {
+                            d: "M3 12 C 8 10, 16 14, 21 12",
+                            stroke: "#FFC107",
+                            stroke_width: "1.5",
+                            fill: "none",
+                        }
+                        circle {
+                            cx: "12", cy: "12", r: "2.5",
+                            fill: "#FFC107",
+                        }
+                    }
+                    "{award}"
+                }
+            }
+            div {
+                class: "flex flex-col gap-y-2 mt-3",
                 div {
                     class: "relative",
                     div {
-                        class: "absolute top-[40px] left-[15px] w-[2px] h-[calc(100%-30px)] bg-gray-200",
+                        class: "absolute left-0 top-[-9px] w-[30px] h-[calc(100%+50px)] bg-[#f0f0f0] rounded-full",
+                    }
+                    div {
+                        class: "absolute top-[29px] left-[15px] w-[2px] h-[calc(100%-25px)] bg-gray-300",
                     }
                     if start_distance.parse::<i32>().unwrap_or(0) >= 1000 {
                         div {
                             class: "absolute left-0 top-0 text-center w-[30px]",
-                            span { class: "font-bold", {format!("{:.1}", start_distance.parse::<f64>().unwrap_or(0.0) / 1000.0)} }
-                            span { class: "text-xs block text-gray-500 leading-none", "km" }
+                            span { class: "font-semibold block text-[12px] leading-none", {format!("{:.1}", start_distance.parse::<f64>().unwrap_or(0.0) / 1000.0)} }
+                            span { class: "text-xs font-thin block text-gray-500 leading-none", "km" }
                         }
                     } else {
                         div {
                             class: "absolute left-0 top-0 text-center w-[30px]",
-                            span { class: "font-bold", {format!("{}", start_distance)} }
-                            span { class: "text-xs block text-gray-500 leading-none", "m" }
+                            span { class: "font-semibold block text-[12px] leading-none", {format!("{}", start_distance)} }
+                            span { class: "text-xs font-thin block text-gray-500 leading-none", "m" }
                         }
                     }
                     div {
@@ -343,14 +382,14 @@ fn OrderCard(
                     if shop_distance.parse::<i32>().unwrap_or(0) >= 1000 {
                         div {
                             class: "absolute left-0 top-0 text-center w-[30px]",
-                            span { class: "font-bold", {format!("{:.1}", shop_distance.parse::<f64>().unwrap_or(0.0) / 1000.0)} }
-                            span { class: "text-xs block text-gray-500 leading-none", "km" }
+                            span { class: "font-semibold block text-[12px] leading-none", {format!("{:.1}", shop_distance.parse::<f64>().unwrap_or(0.0) / 1000.0)} }
+                            span { class: "text-xs font-thin block text-gray-500 leading-none", "km" }
                         }
                     } else {
                         div {
                             class: "absolute left-0 top-0 text-center w-[30px]",
-                            span { class: "font-bold", {format!("{}", shop_distance)} }
-                            span { class: "text-xs block text-gray-500 leading-none", "m" }
+                            span { class: "font-semibold block text-[12px] leading-none", {format!("{}", shop_distance)} }
+                            span { class: "text-xs font-thin block text-gray-500 leading-none", "m" }
                         }
                     }
                     div { class: "text-lg ml-[40px]", "{shop_name}" }
@@ -369,9 +408,9 @@ fn OrderCard(
                         }
                     })}
                 }
-                div { class: "text-xs text-gray-500", "{goods}" }
+                div { class: "text-xs text-gray-500 bg-gray-100 py-2 px-3 mt-1 rounded", "{goods}" }
                 if let Some(n) = note {
-                    div { class: "bg-yellow-100 text-yellow-800 p-1 rounded text-xs mt-1", "{n}" }
+                    div { class: "bg-yellow-100 text-yellow-800 py-2 px-3 rounded text-xs mt-1", "备注：{n}" }
                 }
             }
             if active_tab == 0 {
@@ -416,7 +455,7 @@ fn SidebarDrawer(on_close: EventHandler<()>) -> Element {
         div { class: "fixed inset-0 z-50 flex",
             // 遮罩
             div {
-                class: "fixed inset-0 bg-black bg-opacity-30",
+                class: "fixed inset-0 bg-black/30",
                 onclick: move |_| on_close.call(())
             }
             // 侧边栏内容
