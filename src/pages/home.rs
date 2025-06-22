@@ -1,5 +1,5 @@
 use dioxus::prelude::*;
-use crate::components::HeaderBar;
+use crate::components::{HeaderBar, SidebarDrawer};
 
 // 全局信号用于共享工作状态
 thread_local! {
@@ -240,7 +240,7 @@ fn BottomBar(is_working: Signal<bool>) -> Element {
                 // 刷新按钮
                 button {
                     class: "flex items-center justify-center border border-gray-300 text-gray-700 text-lg font-bold rounded-xl flex-1 h-12 ml-2 bg-white shadow transition-all duration-150 active:scale-95",
-                    // 标准刷新(圆形箭头)图标
+                    // 双弯曲箭头图标
                     svg {
                         class: "w-5 h-5 mr-2",
                         view_box: "0 0 24 24",
@@ -249,10 +249,12 @@ fn BottomBar(is_working: Signal<bool>) -> Element {
                         stroke_width: "2",
                         stroke_linecap: "round",
                         stroke_linejoin: "round",
-                        // 圆弧
-                        path { d: "M21 12a9 9 0 1 1-6.219-8.56" }
-                        // 箭头
-                        polyline { points: "22 4 21 12 13 11" }
+                        // 第一个弯曲箭头
+                        path { d: "M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" }
+                        path { d: "M21 3v5h-5" }
+                        // 第二个弯曲箭头
+                        path { d: "M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" }
+                        path { d: "M3 21v-5h5" }
                     }
                     span { "刷新" }
                 }
@@ -315,7 +317,7 @@ fn OrderCard(
             div {
                 class: "flex justify-between items-center",
                 span {
-                    class: "bg-red-100 text-red-500 border border-red-500 px-1 py-0.1 rounded text-[12px] flex items-center",
+                    class: "bg-red-100 text-red-500 border border-red-500 px-1 py-0.1 rounded text-[10px] flex items-center",
                     svg {
                         class: "w-3 h-4 mr-1",
                         view_box: "0 0 24 24",
@@ -349,14 +351,14 @@ fn OrderCard(
                 }
             }
             div {
-                class: "flex flex-col gap-y-2 mt-3",
+                class: "flex flex-col gap-y-2 mt-2",
                 div {
                     class: "relative",
                     div {
-                        class: "absolute left-0 top-[-9px] w-[30px] h-[calc(100%+50px)] bg-[#f0f0f0] rounded-full",
+                        class: "absolute left-0 top-[-9px] w-[30px] h-[calc(100%+50px)] bg-[#f8f8f8] rounded-full",
                     }
                     div {
-                        class: "absolute top-[29px] left-[15px] w-[2px] h-[calc(100%-25px)] bg-gray-300",
+                        class: "absolute top-[29px] left-[15px] w-[1px] h-[calc(100%-25px)] bg-[#a6a6a6]",
                     }
                     if start_distance.parse::<i32>().unwrap_or(0) >= 1000 {
                         div {
@@ -444,74 +446,6 @@ fn OrderCard(
                     disabled: disabled,
                     "送达"
                 }
-            }
-        }
-    }
-}
-
-#[component]
-fn SidebarDrawer(on_close: EventHandler<()>) -> Element {
-    rsx! {
-        div { class: "fixed inset-0 z-50 flex",
-            // 遮罩
-            div {
-                class: "fixed inset-0 bg-black/30",
-                onclick: move |_| on_close.call(())
-            }
-            // 侧边栏内容
-            div {
-                class: "relative w-4/5 max-w-xs bg-white h-full shadow-lg p-4 overflow-y-auto flex flex-col",
-                    // 个人信息
-                    div { class: "flex items-center space-x-3 mb-4 mt-2",
-                        div { class: "w-12 h-12 bg-orange-200 rounded-full flex items-center justify-center text-2xl font-bold", "李*" }
-                        div {
-                            div { class: "font-bold text-lg text-gray-800", "李*" }
-                            div { class: "text-xs text-yellow-600 flex items-center gap-1 mt-1", 
-                                span { class: "bg-yellow-100 px-2 py-0.5 rounded-full font-bold", "王者骑士" }
-                            }
-                        }
-                    }
-                    // 今日收入/单量
-                    div { class: "flex gap-2 mb-4",
-                        div { class: "flex-1 bg-red-50 rounded-xl p-3 flex flex-col items-center shadow",
-                            span { class: "text-xs text-gray-500 mb-1", "今日收入(元)" }
-                            span { class: "text-xl font-bold text-red-500", "138.70" }
-                            span { class: "text-xs text-orange-500 mt-1", "我的钱包 >" }
-                        }
-                        div { class: "flex-1 bg-red-50 rounded-xl p-3 flex flex-col items-center shadow",
-                            span { class: "text-xs text-gray-500 mb-1", "今日完单量(单)" }
-                            span { class: "text-xl font-bold text-red-500", "16(含2趟)" }
-                            span { class: "text-xs text-orange-500 mt-1", "订单统计 >" }
-                        }
-                    }
-                    // 奖励活动
-                    div { class: "bg-orange-100 rounded-lg flex items-center p-3 gap-3 shadow text-xs text-orange-700 mb-4 relative",
-                        span { class: "bg-orange-400 text-white px-2 py-0.5 rounded-full text-xs absolute left-2 -top-2", "3个进行中" }
-                        span { class: "text-lg", "🎁" }
-                        span { class: "flex-1", "奖励活动 小队6.16~6.22指数..." }
-                        span { class: "text-orange-400 font-bold", ">" }
-                    }
-                    // 快捷入口/功能区
-                    div { class: "grid grid-cols-4 gap-3 mb-4 text-center text-xs",
-                        div { class: "relative flex flex-col items-center", span { class: "text-2xl mb-1", "📝" } span { "全职报名" } }
-                        div { class: "relative flex flex-col items-center", span { class: "text-2xl mb-1", "🚩" } span { "骑士小队" } }
-                        div { class: "relative flex flex-col items-center", span { class: "text-2xl mb-1", "🔥" } span { "热门岗位" } }
-                        div { class: "relative flex flex-col items-center", span { class: "text-2xl mb-1", "🎓" } span { "骑士学院" } }
-                        div { class: "relative flex flex-col items-center", span { class: "text-2xl mb-1", "🎥" } span { "小达直播" } span { class: "absolute top-0 right-2 bg-red-500 text-white text-[10px] px-1 rounded-full", "Hot" } }
-                        div { class: "relative flex flex-col items-center", span { class: "text-2xl mb-1", "🛡️" } span { "骑士装备" } }
-                        div { class: "relative flex flex-col items-center", span { class: "text-2xl mb-1", "💼" } span { "我的保险" } }
-                        div { class: "relative flex flex-col items-center", span { class: "text-2xl mb-1", "🎫" } span { "我的卡券" } }
-                        div { class: "relative flex flex-col items-center", span { class: "text-2xl mb-1", "🔳" } span { "我的二维码" } }
-                        div { class: "relative flex flex-col items-center", span { class: "text-2xl mb-1", "👕" } span { "联名装绑定" } }
-                    }
-                    // 其它功能
-                    div { class: "grid grid-cols-3 gap-2 mb-4 text-center text-xs",
-                        div { class: "flex flex-col items-center", span { class: "text-xl mb-1", "🛒" } span { "达达商城" } }
-                        div { class: "flex flex-col items-center", span { class: "text-xl mb-1", "🤝" } span { "骑士关怀" } }
-                        div { class: "flex flex-col items-center", span { class: "text-xl mb-1", "➕" } span { "更多功能" } }
-                    }
-                    // 服务中心
-                    div { class: "mt-4 text-center text-gray-400 text-xs", "服务中心" }
             }
         }
     }
