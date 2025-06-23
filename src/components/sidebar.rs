@@ -1,7 +1,13 @@
 use dioxus::prelude::*;
 
 #[component]
-pub fn SidebarDrawer(on_close: EventHandler<()>) -> Element {
+pub fn SidebarDrawer(
+    on_close: EventHandler<()>,
+    full_name: String,
+    today_income: String,
+    today_order_count: String,
+    today_trip_count: String,
+) -> Element {
     let mut show_delivery_type_modal = use_signal(|| false);
     let mut selected_delivery_type = use_signal(|| "众包配送".to_string());
     let mut current_slide = use_signal(|| 0);
@@ -12,6 +18,16 @@ pub fn SidebarDrawer(on_close: EventHandler<()>) -> Element {
         ("新人冲单奖励", "额外奖励,等你来拿", "🚀"),
     ];
     let slides_len = slides.len();
+    let masked_name = if let Some(first) = full_name.chars().next() {
+        format!("{}*", first)
+    } else {
+        "*".to_string()
+    };
+    let display_name = if *show_full_name.read() {
+        full_name.clone()
+    } else {
+        masked_name.clone()
+    };
 
     use_future(move || async move {
         loop {
@@ -29,10 +45,10 @@ pub fn SidebarDrawer(on_close: EventHandler<()>) -> Element {
             }
             // 侧边栏内容
             div {
-                class: "relative w-[90%] max-w-[350px] bg-white h-full shadow-lg flex flex-col px-2",
+                class: "relative w-[90%] max-w-[350px] bg-white h-full shadow-lg flex flex-col",
                 // 顶部固定区域
                 div {
-                    class: "sticky top-0 z-10 bg-white",
+                    class: "bg-white px-2",
                     // 新的头部
                     div {
                         class: "flex justify-between items-center py-4",
@@ -84,7 +100,7 @@ pub fn SidebarDrawer(on_close: EventHandler<()>) -> Element {
 
                 // 个人信息，仅在主视图显示
                 if !*show_delivery_type_modal.read() {
-                    div { class: "flex items-center justify-between gap-2 mb-3",
+                    div { class: "flex items-center justify-between gap-2 mb-3 px-2",
                         // Left part: avatar + name + eye
                         div { class: "flex items-center gap-2",
                             img {
@@ -95,20 +111,31 @@ pub fn SidebarDrawer(on_close: EventHandler<()>) -> Element {
                             div {
                                 class: "flex items-center text-lg text-gray-800",
                                 span {
-                                    if *show_full_name.read() { "李师傅" } else { "李*" }
+                                    "{display_name}"
                                 }
-                                span { class: "mx-1 text-gray-400 font-light", ">" }
+                                // 右侧直角箭头
+                                svg {
+                                    class: "w-5 h-5 mx-1",
+                                    xmlns: "http://www.w3.org/2000/svg",
+                                    fill: "none",
+                                    view_box: "0 0 24 24",
+                                    stroke: "currentColor",
+                                    stroke_width: "2.2",
+                                    stroke_linecap: "round",
+                                    stroke_linejoin: "round",
+                                    path { d: "M9 6l6 6-6 6" }
+                                }
                                 button {
                                     class: "flex items-center",
                                     onclick: move |_| show_full_name.toggle(),
                                     if *show_full_name.read() {
                                         // Open eye icon
                                         svg {
-                                            class: "w-6 h-6 text-gray-500",
+                                            class: "w-6 h-6",
                                             xmlns: "http://www.w3.org/2000/svg",
                                             fill: "none",
                                             view_box: "0 0 24 24",
-                                            stroke_width: "1.5",
+                                            stroke_width: "1",
                                             stroke: "currentColor",
                                             path {
                                                 stroke_linecap: "round",
@@ -124,11 +151,11 @@ pub fn SidebarDrawer(on_close: EventHandler<()>) -> Element {
                                     } else {
                                         // Closed eye icon (standard eye-slash)
                                         svg {
-                                            class: "w-6 h-6 text-gray-500",
+                                            class: "w-6 h-6",
                                             xmlns: "http://www.w3.org/2000/svg",
                                             fill: "none",
                                             view_box: "0 0 24 24",
-                                            stroke_width: "1.5",
+                                            stroke_width: "1",
                                             stroke: "currentColor",
                                             path {
                                                 stroke_linecap: "round",
@@ -141,15 +168,9 @@ pub fn SidebarDrawer(on_close: EventHandler<()>) -> Element {
                             }
                         }
                         // Right part: badge
-                        div {
-                            span { 
-                                class: "bg-gradient-to-tr from-yellow-200 to-amber-400 text-black text-xs font-bold px-2.5 py-1 rounded-full border-2 border-white shadow-md flex items-center gap-1",
-                                img {
-                                    class: "w-4 h-4",
-                                    src: "https://img.meituan.net/csc/0f09ffd118de921c56b83416d833bce51336.png"
-                                }
-                                "王者骑士"
-                            }
+                        img {
+                            class: "w-[85px]",
+                            src: "/public/images/wangzhe.png"
                         }
                     }
                 }
@@ -170,20 +191,21 @@ pub fn SidebarDrawer(on_close: EventHandler<()>) -> Element {
                         // 主体内容区域
                         div {
                             class: "flex-1 overflow-y-auto",
+                            // 白色背景区域
                             div {
-                                class: "bg-white",
+                                class: "bg-white px-2",
                                 // 今日收入/单量
                                 div {
                                     class: "flex gap-2 border-[1px] border-[#ffcdcd] rounded-md p-4",
                                     style: "background: linear-gradient(to right, #fee6e6, #fef3f3);",
                                     div { class: "flex-1 flex flex-col gap-2",
                                         span { class: "text-xs", "今日收入(元)" }
-                                        span { class: "text-xl font-bold text-[#960001]", "138.70" }
+                                        span { class: "text-xl font-bold text-[#960001]", "{today_income}" }
                                         span { class: "text-xs text-[#703e3d]", "我的钱包 >" }
                                     }
                                     div { class: "flex-1 flex flex-col gap-2",
                                         span { class: "text-xs", "今日完单量(单)" }
-                                        span { class: "text-xl font-bold text-[#960001]", "16", i { class: "text-xs text-[#703e3d] not-italic", "(含2趟)" } }
+                                        span { class: "text-xl font-bold text-[#960001]", "{today_order_count}", i { class: "text-xs text-[#703e3d] not-italic", "(含{today_trip_count}趟)" } }
                                         span { class: "text-xs text-[#703e3d]", "订单统计 >" }
                                     }
                                 }
@@ -240,7 +262,7 @@ pub fn SidebarDrawer(on_close: EventHandler<()>) -> Element {
                                         class: "flex flex-col bg-white rounded-md p-2",
                                         span { "奖励活动" }
                                         span { 
-                                            class: "text-xs text-[#703e3d] rounded-full px-2 py-1",
+                                            class: "text-xs text-[#8c0304] rounded-full px-2 py-1",
                                             style: "background: linear-gradient(to right, #ffd9d8, #fef3f3);",
                                             "3个进行中"
                                         }
@@ -281,7 +303,7 @@ pub fn SidebarDrawer(on_close: EventHandler<()>) -> Element {
                                     class: "flex flex-col gap-2 bg-white rounded-md p-4",
                                     p { class: "text-sm font-semibold", "进阶跑单" }
                                     div {
-                                        class: "flex justify-around items-start pt-2",
+                                        class: "grid grid-cols-4 gap-2 pt-2",
                                         // 全职报名
                                         a { href: "#", class: "flex flex-col items-center gap-2 text-center",
                                             div { class: "w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center",

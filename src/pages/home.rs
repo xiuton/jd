@@ -31,7 +31,13 @@ pub fn Home() -> Element {
             BottomBar { is_working: is_working }
             // 侧边栏抽屉
             if *show_sidebar.read() {
-                SidebarDrawer { on_close: move |_| show_sidebar.set(false) }
+                SidebarDrawer {
+                    on_close: move |_| show_sidebar.set(false),
+                    full_name: "蔡徐坤".to_string(),
+                    today_income: "643.70".to_string(),
+                    today_order_count: "79".to_string(),
+                    today_trip_count: "5".to_string(),
+                }
             }
         }
     }
