@@ -1,7 +1,7 @@
 use dioxus::prelude::*;
 use dioxus_router::prelude::*;
 // use crate::components::layout::Layout;
-use crate::pages::{Home, Orders, Wallet, Profile, NotFound};
+use crate::pages::{Home, Orders, Wallet, Profile, NotFound, Info};
 
 #[derive(Routable, Clone)]
 pub enum Route {
@@ -14,6 +14,8 @@ pub enum Route {
     Wallet {},
     #[route("/profile")]
     Profile {},
+    #[route("/profile/info")]
+    Info {},
     #[route("/:..route")]
     NotFound { route: Vec<String> },
 }

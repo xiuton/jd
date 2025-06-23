@@ -3,9 +3,11 @@ pub mod orders;
 pub mod wallet;
 pub mod profile;
 pub mod not_found;
+pub mod info;
 
 pub use home::Home;
 pub use orders::Orders;
 pub use wallet::Wallet;
 pub use profile::Profile;
 pub use not_found::NotFound;
+pub use info::Info;

@@ -1,4 +1,6 @@
 use dioxus::prelude::*;
+use dioxus_router::prelude::*;
+use crate::router::Route;
 
 #[component]
 pub fn SidebarDrawer(
@@ -12,6 +14,7 @@ pub fn SidebarDrawer(
     let mut selected_delivery_type = use_signal(|| "众包配送".to_string());
     let mut current_slide = use_signal(|| 0);
     let mut show_full_name = use_signal(|| false);
+    let nav = use_navigator();
     let slides = vec![
         ("小队6.16~6.22指数分活动", "活动日期 06-16 - 06-22", "🎁"),
         ("夏季防暑补贴", "高温下发,注意查收", "☀️"),
@@ -102,7 +105,7 @@ pub fn SidebarDrawer(
                 if !*show_delivery_type_modal.read() {
                     div { class: "flex items-center justify-between gap-2 mb-3 px-2",
                         // Left part: avatar + name + eye
-                        div { class: "flex items-center gap-2",
+                        div { class: "flex items-center gap-2 cursor-pointer", onclick: move |_| { nav.push(Route::Profile {}); },
                             img {
                                 class: "w-10 h-10 rounded-full",
                                 src: "/public/images/avatar.jpg",

@@ -13,18 +13,13 @@ pub fn use_is_working() -> Signal<bool> {
 #[component]
 pub fn Home() -> Element {
     let mut show_sidebar = use_signal(|| false);
-    let mut active_tab = use_signal(|| 0);
+    let active_tab = use_signal(|| 0);
     let is_working = use_is_working();
 
     rsx! {
         div { class: "min-h-screen bg-[#f2f2f2] flex flex-col pb-20",
             // 顶部栏
-            HeaderBar { on_menu_click: move |_| show_sidebar.set(true), is_working: is_working }
-            // 订单Tab
-            OrderTabs { 
-                active: *active_tab.read(),
-                on_change: move |index| active_tab.set(index)
-            }
+            HeaderBar { on_menu_click: move |_| show_sidebar.set(true), is_working: is_working, active_tab: active_tab }
             // 订单列表
             OrderList { active_tab: *active_tab.read() }
             // 底部导航栏
@@ -39,44 +34,6 @@ pub fn Home() -> Element {
                     today_trip_count: "5".to_string(),
                 }
             }
-        }
-    }
-}
-
-#[component]
-fn OrderTabs(active: i32, on_change: EventHandler<i32>) -> Element {
-    let tabs = vec![
-        ("新任务", "border-white text-white", "text-gray-500"),
-        ("待取货", "border-white text-white", "text-gray-500"),
-        ("配送中", "border-white text-white", "text-gray-500"),
-    ];
-
-    rsx! {
-        div { class: "flex bg-black sticky top-[52px] z-10",
-            {tabs.into_iter().enumerate().map(|(index, (text, active_class, inactive_class))| {
-                let is_active = active == index as i32;
-                let class_name = if is_active {
-                    format!("text-center text-sm px-4 py-2 cursor-pointer relative after:content-[''] after:absolute after:bottom-0 after:inset-x-0 after:mx-auto after:w-[30px] after:h-[4px] after:bg-white after:rounded-full {}", active_class)
-                } else {
-                    format!("text-center text-sm px-4 py-2 cursor-pointer relative {}", inactive_class)
-                };
-                rsx! {
-                    div {
-                        class: class_name,
-                        onclick: move |_| on_change.call(index as i32),
-                        span { "{text}" }
-                        // 倒三角svg
-                        svg {
-                            class: if is_active { "inline w-4 h-4 align-middle text-white" } else { "inline w-4 h-4 align-middle text-gray-500" },
-                            view_box: "0 0 24 24",
-                            path { 
-                                d: "M12 16L6 10H18L12 16Z",
-                                fill: "currentColor"
-                            }
-                        }
-                    }
-                }
-            })}
         }
     }
 }
