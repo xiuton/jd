@@ -650,7 +650,7 @@ fn DeliveryTypeSelection(selected_type: Signal<String>, on_select: EventHandler<
 
     rsx! {
         div {
-            class: "bg-white flex-1 overflow-y-auto -mx-2",
+            class: "bg-white flex-1 overflow-y-auto",
             ul {
                 class: "divide-y divide-gray-100",
                 {delivery_types.into_iter().map(|(title, description)| {
